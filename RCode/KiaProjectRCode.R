@@ -22,6 +22,7 @@ for(i in 1:length(unq.states)){
   print(paste0(100*round(i/length(unq.states), 4), "% - Combining States"))
 }
 
+plot(1,1); dev.off()
 par(mfrow = c(1, 2))
 plot(
   state.data$virus.count ~ as.Date(state.data$day),
@@ -34,6 +35,11 @@ plot(
   ylab = "Confirmed Infections",
   main = "Corona By State"
 )
+rect(18400, -20000,18440, 160000, col = "grey90")
+x.lines <- seq(as.Date("2020-05-25"), as.Date("2020-06-22"), 7)
+for(i in 1:length(x.lines)){abline(v = x.lines[i], col = "white")}
+y.lines <- seq(-20000, 160000, 20000)
+for(i in 1:length(y.lines)){abline(h = y.lines[i], col = "white")}
 axis(1, seq(18400, 18440, 40), rep(NA, 2))
 axis(2, seq(-20000, 160000, 20000))
 for(i in 1:length(unq.states)){
@@ -44,6 +50,7 @@ for(i in 1:length(unq.states)){
   )
   print(paste0(100*round(i/length(unq.states), 4), "% - Combining States"))
 }
+
 
 plot(
   state.data$virus.count ~ as.Date(state.data$day),
@@ -57,6 +64,11 @@ plot(
   main = "Corona By State",
   ylim = c(0, 40000)
 )
+rect(18400, -20000,18440, 160000, col = "grey90")
+x.lines <- seq(as.Date("2020-05-25"), as.Date("2020-06-22"), 7)
+for(i in 1:length(x.lines)){abline(v = x.lines[i], col = "white")}
+y.lines <- seq(-20000, 160000, 20000)
+for(i in 1:length(y.lines)){abline(h = y.lines[i], col = "white")}
 axis(1, seq(18400, 18440, 40), rep(NA, 2))
 axis(2, seq(-20000, 160000, 20000))
 for(i in 1:length(unq.states)){
