@@ -77,13 +77,36 @@ for(i in 1:length(unq.states)){
     col = i,
     type = 'l'
   )
-  print(paste0(100*round(i/length(unq.states), 4), "% - Combining States"))
+  print(paste0(100*round(i/length(unq.states), 4), "% - Plotting Sub States"))
 }
 
+# What do we think will be the most useful? -------------------------------
+# R0?  Population density?
+# Growth rate values?
+# RT - tested vs untested positives
+# How many people will they give it to?  Projected growth rates
+# New cases per ??? per day
+# What's the likelihood that any individual marine will show up with an active case of COVID and be infectious?
+
+# What are they looking for? ----------------------------------------------
+# What can give us insight into what to do moving forward?
+
+# Report outline ----------------------------------------------------------
+# Problem statement
+# Data
+# Limitations
+# Methods
+# Conclusions
 
 
 
-# Examine by County -------------------------------------------------------
+
+
+
+
+
+
+
 
 
 
