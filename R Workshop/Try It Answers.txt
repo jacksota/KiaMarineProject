@@ -1,0 +1,152 @@
+#################################################################
+#	Try it! #1 (Slide 13)
+#################################################################
+# Find out what the directory is
+getwd()
+
+# Change the directory
+setwd("C:\\Users\\jacksota\\Desktop")
+getwd()
+
+#################################################################
+#	Try it! #2 (Slide 18)
+#################################################################
+# 
+?plot
+help(table)
+??eigen
+
+# Installing and loading the psych package
+install.packages("psych")
+library(psych)
+
+#################################################################
+#	Try it! #3 (Slide 26)
+#################################################################
+#  As a dataframe
+data.frame(c("CHI","FRA","GER"),c(11.65,10.73,10.81),c(23.84,21.99,21.71))
+
+country <- c("CHI","FRA","GER")
+one <- c(11.65,10.73,10.81)
+two <- c(23.84,21.99,21.71)
+data.frame(country, one, two)
+
+# As a matrix
+matrix(c("CHI","FRA","GER",11.65,10.73,10.81,23.84,21.99,21.71),ncol=3)
+
+matrix(c(country, one, two),ncol=3)
+
+#################################################################
+#	Try it! #4 (Slide 38)
+#################################################################
+# Read the file in.  You should get 558 rows and 12 columns
+cardiac.data <- read.table("cardiac.txt",header=TRUE,sep="\t")
+
+cardiac.data <- read.table("C:\\Users\\jacksota\\Desktop\\cardiac.txt",header=TRUE,sep="\t")
+
+cardiac.data <- read.table(file.choose(),header=TRUE,sep="\t")
+
+# Selecting only the men.  There should be 220 rows and 12 columns
+cardiac.male <- cardiac.data[cardiac.data$gender == "M",]
+
+cardiac.male <- subset(cardiac.data,cardiac.data$gender == "M")
+
+cardiac.male <- cardiac.data[cardiac.data[,7] == "M",]
+
+cardiac.male <- cardiac.data[cardiac.data[,7] != "F",]
+
+#  Selecting the basal heart rate (bhr) and peak heart rate (pkhr) for the males
+rate.peak <- cardiac.male[,c("bhr","pkhr")]
+
+rate.peak <- cardiac.male[,c(1,3)]
+
+attach(cardiac.data)
+rate.peak <- cardiac.data[gender == "M",c("bhr","pkhr")]
+detach(cardiac.data)
+
+#################################################################
+#	Try it! #5 (Slide 51)
+#################################################################
+attach(cardiac.data)
+# Creating the scatterplot of age and peak heart rate
+plot(age,pkhr,xlab="Age",ylab="Peak Heart Rate",main="Age v. Peak Heart Rate")
+plot(pkhr~age,xlab="Age",ylab="Peak Heart Rate",main="Age v. Peak Heart Rate")
+
+# Scatterplot with colored diamonds
+plot(age,pkhr,xlab="Age",ylab="Peak Heart Rate",main="Age v. Peak Heart Rate",pch=15,col="blue")
+
+# Scatterplot with legend and different colors for males and females
+plot(pkhr[gender=="F"]~age[gender=="F"],xlab="Age",ylab="Peak Heart Rate",main="Age v. Peak Heart Rate",pch=15,col="blue")
+points(pkhr[gender=="M"]~age[gender=="M"],pch=19,col="red")
+legend("topleft",legend=c("Females","Males"),pch=c(15,19),col=c("blue","red"))
+
+detach(cardiac.data)
+
+#################################################################
+#	Try it! #6 (Slide 58)
+#################################################################
+# Histograms
+attach(cardiac.data)
+hist(basebp)
+hist(sbp)
+
+# you can also plot them side by side
+par(mfrow=c(1,2))
+hist(basebp)
+hist(sbp)
+
+# creating boxplots
+boxplot(basebp)
+boxplot(sbp,horizontal=TRUE)
+
+# creating boxplots by gender
+boxplot(basebp~gender,horizontal=TRUE)
+boxplot(sbp~gender,notch=TRUE,col=c("blue","red"))
+
+par(mfrow=c(1,1))
+detach(cardiac.data)
+
+#################################################################
+#	Try it! #7 (Slide 62)
+#################################################################
+attach(cardiac.data)
+
+# descriptive statistics for chestpain
+mean(chestpain)
+table(chestpain)
+summary(chestpain)
+
+# descriptive statistics for dose
+mean(dose)
+var(dose)
+sd(dose)
+min(dose)
+max(dose)
+median(dose)
+table(dose)
+max(table(dose))
+min(table(dose))
+summary(dose)
+
+detach(cardiac.data)
+#################################################################
+#	Try it! #8 (Slide 67)
+#################################################################
+attach(cardiac.data)
+
+#  Null: mean age = 72 vs Alt. Age < 72
+t.test(age,alternative="less",mu=72)
+
+#  Null: peak heart rate for males and female is the same vs 
+#  Alt. peak heart rate is greater for males than females
+x <- pkhr[gender=="M"]
+y <- pkhr[gender=="F"]
+t.test(x,y,alternative="greater",paired=FALSE,var.equal=TRUE)
+
+#  Null: peak heart rate are the same when you have and don't have chest pain vs 
+#  Alt. peak heart rate is different when you have and don't have chest pain
+a <- pkhr[chestpain==0]
+b <- pkhr[chestpain==1]
+t.test(a,b,alternative="two.sided",paired=FALSE,var.equal=FALSE)
+
+detach(cardiac.data)

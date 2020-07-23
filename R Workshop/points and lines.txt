@@ -1,0 +1,12 @@
+x=1:25
+plot(x,x,pch=x)
+y1 = 0:4;x1 = rep(5,5)
+y2 = 0:9;x2 = rep(10,10)
+y3 = 0:14;x3 = rep(15,15)
+y4 = 0:19;x4 = rep(20,20)
+y5 = 0:24;x5 = rep(25,25)
+points(x1,y1,type="l");points(x2,y2,type="l")
+points(x3,y3,type="l");points(x4,y4,type="l")
+points(x5,y5,type="l")
+
+for(i in 1:25){abline(i,1,lty=i)}
