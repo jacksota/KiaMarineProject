@@ -136,18 +136,19 @@ text(x = -140, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0
 dev.off()
 
 # Graph demonstrating Piecewise regressions -------------------------------
-place.use <- "Jefferson KY"
-tmp.data <- kiah.data[paste0(kiah.data$County, " ", kiah.data$State),]
+place.use <- "St. Charles MO"
+tmp.data <- kiah.data[paste0(kiah.data$County, " ", kiah.data$State) == place.use,]
 tmp.x <- 1:14
 tmp.y <- t(tmp.data[1,c((dim(tmp.data)[2] - 13):(dim(tmp.data)[2]))])
 plot(1,1); dev.off()
 
-# pdf("Piecewise Regression.pdf")
+pdf("Piecewise Regression.pdf")
 # Creating plot
 plot(
   tmp.y ~ tmp.x,
   main = paste0(
-    "Garland AR (",
+    place.use,
+    " (",
     as.character(month(as.Date(names(kiah.data)[dim(kiah.data)[2] - 13]), label = TRUE, abbr = FALSE)),
     " ",
     day(as.Date(names(kiah.data)[dim(kiah.data)[2] - 13])),
@@ -167,7 +168,7 @@ plot(
 
 # Axes
 axis(1, seq(-4, 16, 4), c(NA, as.character(seq(as.Date(names(kiah.data)[dim(kiah.data)[2] - 13]), as.Date(names(kiah.data)[dim(kiah.data)[2]]), by = 4)), NA))
-axis(2, seq(4200, 5600, 200), seq(4200, 5600, 200))
+axis(2, seq(1000, 2200, 200), seq(1000, 2200, 200))
 
 # Adding points
 points(tmp.y[1:7] ~ tmp.x[1:7], col = "red", pch = 16)
@@ -189,14 +190,14 @@ legend(
   "topleft",
   legend = c(
     paste0("Prior Week (Slope = ", round(old.reg[2,1], 2), ")"),
-    paste("Current Week (Slope = ", round(new.reg[2,1], 2), ")")
+    paste("Current Week (Slope = ", round(new.reg[2,1], 2), ")"),
+    paste0("Marine Count: ", tmp.data$MarineCnts[1])
   ),
-  col = c("red", "blue"),
-  pch = c(16, 16),
-  lty = c(1, 1),
-  lwd = c(2, 2),
+  col = c("red", "blue", NA),
+  pch = c(16, 16, NA),
+  lty = c(1, 1, NA),
+  lwd = c(2, 2, NA),
   bty = "n"
 )
-
-# dev.off()
+dev.off()
 
