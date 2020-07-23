@@ -16,6 +16,7 @@ kiah.data <- read.csv(paste0("./Data/", kiah.files[1]))
 # Cleaning data -----------------------------------------------------------
 names(kiah.data)[8:dim(kiah.data)[2]] <- as.character(as.Date(gsub(".", "/", as.character(substr(names(kiah.data)[8:dim(kiah.data)[2]], 2, nchar(names(kiah.data)[8:dim(kiah.data)[2]]))), fixed = TRUE),"%m/%d/%y"))
 kiah.data <- kiah.data[,c(1:7,dim(kiah.data)[2]:8)]
+kiah.data[is.na(kiah.data)] <- 0
 
 # Creating piecewise regressions ------------------------------------------
 x <- 1:7
@@ -57,13 +58,6 @@ for(i in 1:dim(kiah.data)[1]){
   print(paste0(100*round(i/dim(kiah.data)[1], 4), "% - Regressions"))
 }
 reg.data$SlopeDiff <- reg.data$NewSlope - reg.data$OldSlope
-
-# Trouble Counties --------------------------------------------------------
-reg.data[reg.data$PValue <= .05 & reg.data$TestStat > 0,]
-
-# Safe Counties -----------------------------------------------------------
-reg.data[reg.data$PValue <= .05 & reg.data$TestStat < 0,]
-kiah.data[kiah.data$PositiveTestedActiveCasesLast45Days == 0,]
 
 # Creating plot -----------------------------------------------------------
 x <- reg.data$SlopeDiff
@@ -109,7 +103,7 @@ points(
   cex = point.size
 )
 points(
-  y[reg.data$StateRt < 1 & reg.data$SlopeDiff < 0] ~ x[reg.data$StateRt < 1 & reg.data$SlopeDiff < 0],
+  y[reg.data$StateRt < 1 & reg.data$SlopeDiff < 0] ~ x[reg.data$StateRt < 1 & reg.data$SlopeDiff <= 0],
   col = 'green',
   pch = 16,
   cex = point.size
@@ -131,10 +125,11 @@ legend("topleft",
 
 # Adding in Marine Counts
 text(x = 60, y = 1.125, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff > 0 & reg.data$StateRt > 1])[1])
-text(x = -140, y = 1.125, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0 & reg.data$StateRt > 1])[1])
+text(x = -140, y = 1.125, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff <= 0 & reg.data$StateRt > 1])[1])
 text(x = 60, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff > 0 & reg.data$StateRt < 1])[1])
-text(x = -140, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0 & reg.data$StateRt < 1])[1])
+text(x = -140, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff <= 0 & reg.data$StateRt < 1])[1])
 dev.off()
+setwd("../")
 
 # Graph demonstrating Piecewise regressions -------------------------------
 place.use <- "St. Charles, MO"
@@ -143,6 +138,7 @@ tmp.x <- 1:14
 tmp.y <- t(tmp.data[1,c((dim(tmp.data)[2] - 13):(dim(tmp.data)[2]))])
 plot(1,1); dev.off()
 
+setwd("./Graphs")
 pdf("Piecewise Regression.pdf")
 # Creating plot
 plot(
@@ -201,7 +197,74 @@ legend(
   bty = "n"
 )
 dev.off()
+setwd("../")
 
 # Creating xlsx File ------------------------------------------------------
+# Create workbook
+wb <- createWorkbook()
 
+# Get Q1 data
+tmp.data <- kiah.data[paste0(kiah.data$State, " - ", kiah.data$County)%in%paste0(reg.data$State[reg.data$SlopeDiff > 0 & reg.data$StateRt > 1], " - ", reg.data$County[reg.data$SlopeDiff > 0 & reg.data$StateRt > 1]),]
+
+# Create sheet and add data
+wb.sheet <- createSheet(wb, sheetName = "State Bad Local Bad")
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(kiah.data)[2])
+
+# Get Q2 data
+tmp.data <- kiah.data[paste0(kiah.data$State, " - ", kiah.data$County)%in%paste0(reg.data$State[reg.data$SlopeDiff <= 0 & reg.data$StateRt > 1], " - ", reg.data$County[reg.data$SlopeDiff <= 0 & reg.data$StateRt > 1]),]
+# Create sheet and add data
+wb.sheet <- createSheet(wb, sheetName = "State Bad Local Good")
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(kiah.data)[2])
+
+# Get Q3 data
+tmp.data <- kiah.data[paste0(kiah.data$State, " - ", kiah.data$County)%in%paste0(reg.data$State[reg.data$SlopeDiff > 0 & reg.data$StateRt < 1], " - ", reg.data$County[reg.data$SlopeDiff > 0 & reg.data$StateRt < 1]),]
+
+# Create sheet and add data
+wb.sheet <- createSheet(wb, sheetName = "State Good Local Bad")
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(kiah.data)[2])
+
+# Get Q4 data
+tmp.data <- kiah.data[paste0(kiah.data$State, " - ", kiah.data$County)%in%paste0(reg.data$State[reg.data$SlopeDiff <= 0 & reg.data$StateRt < 1], " - ", reg.data$County[reg.data$SlopeDiff <= 0 & reg.data$StateRt < 1]),]
+
+# Create sheet and add data
+wb.sheet <- createSheet(wb, sheetName = "State Good Local Good")
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(kiah.data)[2])
+
+# Get Other data
+tmp.data <- kiah.data[!(paste0(kiah.data$State, " - ", kiah.data$County)%in%paste0(reg.data$State, " - ", reg.data$County)),]
+
+# Create sheet and add data
+wb.sheet <- createSheet(wb, sheetName = "No New Cases")
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(kiah.data)[2])
+
+# Get Other data
+tmp.data <- data.frame(
+  c(
+    "State Bad Local Bad",
+    "State Bad Local Good",
+    "State Good Local Bad",
+    "State Good Local Good",
+    "No New Cases"
+  ),
+  c(
+    "Corresponds to Q1 in graph.  Increasing Rt for the State and average number of cases per day increasing for the county.",
+    "Corresponds to Q2 in the graph.  Increasing Rt for the State, but average number of cases per day decreasing for the county.  Includes counties with no difference in Slope but increasing Rt.",
+    "Corresponds to Q4 in the graph.  Decreasing Rt for the State, but average number of cases per day increasing for the county.",
+    "Correpsonds to Q3 in the graph. Decreasing Rt for the State and average number of cases per day decreasing for the county.  Includes counties with no difference in Slope and decreasing Rt.",
+    "No new confirmed cases in the last 45 days.  Does not appear on the graph."
+  )
+)
+names(tmp.data) <- c("Tab", "Explanation")
+
+# Create sheet and add data
+wb.sheet <- createSheet(wb, sheetName = "Data Dictionary")
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+
+# Saving workbook
+saveWorkbook(wb, paste0("./Data/Infection by County Break Down from ", as.Date(names(kiah.data)[dim(kiah.data)[2]]) + 1, ".xlsx"))
 
