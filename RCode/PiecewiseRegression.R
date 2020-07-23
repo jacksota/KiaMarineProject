@@ -3,6 +3,7 @@ rm(list = ls())
 # Loading Needed Functions and packages -----------------------------------
 source("./RFunctions/LoadLibrary.R")
 load.library(c(
+  "lubridate",
   "stringr"
 ))
 
@@ -71,6 +72,8 @@ point.size <- 1
 plot(1,1); dev.off()
 setwd("./Graphs")
 pdf("Slope and State Rt.pdf")
+
+# All Points
 plot(
   y ~ x,
   main = "Slope Differences and State Rt",
@@ -84,10 +87,14 @@ plot(
   cex = point.size
   # type = "n"
 )
+
+# Axes
 axis(1, seq(-500, 3500, 20), seq(-500, 3500, 20))
 axis(2, seq(-1, 2, .05), seq(-1, 2, .05))
 abline(h = 1)
 abline(v = 0)
+
+# Changing point colors
 points(
   y[reg.data$StateRt > 1 & reg.data$SlopeDiff > 0] ~ x[reg.data$StateRt > 1 & reg.data$SlopeDiff > 0],
   col = 'red',
@@ -106,11 +113,8 @@ points(
   pch = 16,
   cex = point.size
 )
-# text(
-#   y ~ x,
-#   labels = reg.data$MarineCount[reg.data$PValue <= .05 & reg.data$TestStat > 0],
-#   cex = reg.data$MarineCount[reg.data$PValue <= .05 & reg.data$TestStat > 0]/5
-# )
+
+# Adding Legend
 legend("topleft",
   legend = c(
     "State Bad, Local Bad", 
@@ -123,13 +127,76 @@ legend("topleft",
   col = c("red", "yellow", "blue", "green", NA),
   bty = "n"
 )
-# text(x = 60, y = 1.125, labels = dim(reg.data[reg.data$SlopeDiff > 0 & reg.data$StateRt > 1,])[1])
-# text(x = -140, y = 1.125, labels = dim(reg.data[reg.data$SlopeDiff < 0 & reg.data$StateRt > 1,])[1])
-# text(x = 60, y = .98, labels = dim(reg.data[reg.data$SlopeDiff > 0 & reg.data$StateRt < 1,])[1])
-# text(x = -140, y = .98, labels = dim(reg.data[reg.data$SlopeDiff < 0 & reg.data$StateRt < 1,])[1])
 
+# Adding in Marine Counts
 text(x = 60, y = 1.125, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff > 0 & reg.data$StateRt > 1])[1])
 text(x = -140, y = 1.125, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0 & reg.data$StateRt > 1])[1])
 text(x = 60, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff > 0 & reg.data$StateRt < 1])[1])
 text(x = -140, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0 & reg.data$StateRt < 1])[1])
 dev.off()
+
+# Graph demonstrating Piecewise regressions -------------------------------
+place.use <- "Jefferson KY"
+tmp.data <- kiah.data[paste0(kiah.data$County, " ", kiah.data$State),]
+tmp.x <- 1:14
+tmp.y <- t(tmp.data[1,c((dim(tmp.data)[2] - 13):(dim(tmp.data)[2]))])
+plot(1,1); dev.off()
+
+# pdf("Piecewise Regression.pdf")
+# Creating plot
+plot(
+  tmp.y ~ tmp.x,
+  main = paste0(
+    "Garland AR (",
+    as.character(month(as.Date(names(kiah.data)[dim(kiah.data)[2] - 13]), label = TRUE, abbr = FALSE)),
+    " ",
+    day(as.Date(names(kiah.data)[dim(kiah.data)[2] - 13])),
+    " - ",
+    as.character(month(as.Date(names(kiah.data)[dim(kiah.data)[2]]), label = TRUE, abbr = FALSE)),
+    " ",
+    day(as.Date(names(kiah.data)[dim(kiah.data)[2]])),
+    ")"
+  ),
+  xlab = "Days",
+  ylab = "Confirmed Cases",
+  bty = "n",
+  xaxt = "n",
+  yaxt = "n",
+  type = "n"
+)
+
+# Axes
+axis(1, seq(-4, 16, 4), c(NA, as.character(seq(as.Date(names(kiah.data)[dim(kiah.data)[2] - 13]), as.Date(names(kiah.data)[dim(kiah.data)[2]]), by = 4)), NA))
+axis(2, seq(4200, 5600, 200), seq(4200, 5600, 200))
+
+# Adding points
+points(tmp.y[1:7] ~ tmp.x[1:7], col = "red", pch = 16)
+points(tmp.y[8:14] ~ tmp.x[8:14], col = "blue", pch = 16)
+
+# Adding lines
+old.reg <- coef(summary(lm(tmp.y[1:7] ~ tmp.x[1:7])))
+x <- seq(.5, 7.5, .5)
+y <- x*old.reg[2,1] + old.reg[1,1]
+points(y ~ x, col = "red", type = "l", lwd = 2)
+
+new.reg <- coef(summary(lm(tmp.y[8:14] ~ tmp.x[8:14])))
+x <- seq(7.5, 14.5, .5)
+y <- x*new.reg[2,1] + new.reg[1,1]
+points(y ~ x, col = "blue", type = "l", lwd = 2)
+
+# Adding legend
+legend(
+  "topleft",
+  legend = c(
+    paste0("Prior Week (Slope = ", round(old.reg[2,1], 2), ")"),
+    paste("Current Week (Slope = ", round(new.reg[2,1], 2), ")")
+  ),
+  col = c("red", "blue"),
+  pch = c(16, 16),
+  lty = c(1, 1),
+  lwd = c(2, 2),
+  bty = "n"
+)
+
+# dev.off()
+
