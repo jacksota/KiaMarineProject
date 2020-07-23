@@ -4,7 +4,8 @@ rm(list = ls())
 source("./RFunctions/LoadLibrary.R")
 load.library(c(
   "lubridate",
-  "stringr"
+  "stringr",
+  "xlsx"
 ))
 
 # Loading Data ------------------------------------------------------------
@@ -136,8 +137,8 @@ text(x = -140, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0
 dev.off()
 
 # Graph demonstrating Piecewise regressions -------------------------------
-place.use <- "St. Charles MO"
-tmp.data <- kiah.data[paste0(kiah.data$County, " ", kiah.data$State) == place.use,]
+place.use <- "St. Charles, MO"
+tmp.data <- kiah.data[paste0(kiah.data$County, ", ", kiah.data$State) == place.use,]
 tmp.x <- 1:14
 tmp.y <- t(tmp.data[1,c((dim(tmp.data)[2] - 13):(dim(tmp.data)[2]))])
 plot(1,1); dev.off()
@@ -200,4 +201,7 @@ legend(
   bty = "n"
 )
 dev.off()
+
+# Creating xlsx File ------------------------------------------------------
+
 
