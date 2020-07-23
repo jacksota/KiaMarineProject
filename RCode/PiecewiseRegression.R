@@ -67,6 +67,10 @@ kiah.data[kiah.data$PositiveTestedActiveCasesLast45Days == 0,]
 x <- reg.data$SlopeDiff
 y <- reg.data$StateRt
 point.size <- 1
+
+plot(1,1); dev.off()
+setwd("./Graphs")
+pdf("Slope and State Rt.pdf")
 plot(
   y ~ x,
   main = "Slope Differences and State Rt",
@@ -128,3 +132,4 @@ text(x = 60, y = 1.125, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff > 0
 text(x = -140, y = 1.125, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0 & reg.data$StateRt > 1])[1])
 text(x = 60, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff > 0 & reg.data$StateRt < 1])[1])
 text(x = -140, y = .98, labels = sum(reg.data$MarineCount[reg.data$SlopeDiff < 0 & reg.data$StateRt < 1])[1])
+dev.off()
