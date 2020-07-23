@@ -268,3 +268,6 @@ addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startC
 # Saving workbook
 saveWorkbook(wb, paste0("./Data/Infection by County Break Down from ", as.Date(names(kiah.data)[dim(kiah.data)[2]]) + 1, ".xlsx"))
 
+# Writing out regression data ---------------------------------------------
+write.csv(reg.data, paste0("./Data/Regression Results for ", as.Date(names(kiah.data)[dim(kiah.data)[2]]) + 1, ".csv"), row.names = FALSE)
+
