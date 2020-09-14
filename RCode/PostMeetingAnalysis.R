@@ -119,19 +119,38 @@ merge.1 <- merge(pre.atad[,-10], meet.atad[,-10], by = c("State", "County", "Sta
 merge.2 <- merge(merge.1, post.atad[,-10], by = c("State", "County", "StateRt", "MarineCount"))
 final.data <- merge.2[,c(1:7, 12:14, 19:21, 8:11, 15:18, 22:25)]
 
-# increase post, meet decrease
+# Pre and Meet no Diff, Post Greater than Meet
+dim(final.data[final.data$PreMeetFlag == 0 & final.data$MeetPostFlag == 1 & final.data$MeetSlope < final.data$PostSlope,c(1:5, 8, 11)])
 
+# Meet greater than Pre, Post Greater than Meet
+dim(final.data[final.data$PreMeetFlag == 1 & final.data$PreSlope < final.data$MeetSlope & final.data$MeetPostFlag == 1 & final.data$MeetSlope < final.data$PostSlope,c(1:5, 8, 11)])
 
+# Meet less than Pre, Post Greater than Meet
+dim(final.data[final.data$PreMeetFlag == 1 & final.data$PreSlope > final.data$MeetSlope & final.data$MeetPostFlag == 1 & final.data$MeetSlope < final.data$PostSlope,c(1:5, 8, 11)])
 
-# increase post, meet zero
+# Outputting data
+wb <- createWorkbook()
 
+# No Change Pre/Meet
+wb.sheet <- createSheet(wb, sheetName = "No Change Pre to Meet")
+tmp.data <- final.data[final.data$PreMeetFlag == 0 & final.data$MeetPostFlag == 1 & final.data$MeetSlope < final.data$PostSlope,c(1:5, 8, 11)]
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(tmp.data)[2])
 
+# Increase Pre/Meet
+wb.sheet <- createSheet(wb, sheetName = "Increase Pre to Meet")
+tmp.data <- final.data[final.data$PreMeetFlag == 1 & final.data$PreSlope < final.data$MeetSlope & final.data$MeetPostFlag == 1 & final.data$MeetSlope < final.data$PostSlope,c(1:5, 8, 11)]
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(tmp.data)[2])
 
-# increase post, meet increase
+# Decrease Pre/Meet
+wb.sheet <- createSheet(wb, sheetName = "Decrease Pre to Meet")
+tmp.data <- final.data[final.data$PreMeetFlag == 1 & final.data$PreSlope > final.data$MeetSlope & final.data$MeetPostFlag == 1 & final.data$MeetSlope < final.data$PostSlope,c(1:5, 8, 11)]
+addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startColumn = 1)
+autoSizeColumn(wb.sheet, colIndex = 1:dim(tmp.data)[2])
 
-
-
-
+# Saving workbook
+saveWorkbook(wb, paste0("./Data/Post Meeting Slopes.xlsx"))
 
 
 
