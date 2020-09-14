@@ -152,7 +152,180 @@ autoSizeColumn(wb.sheet, colIndex = 1:dim(tmp.data)[2])
 # Saving workbook
 saveWorkbook(wb, paste0("./Data/After Meeting Slopes.xlsx"))
 
+# Create 3 graphs (1 per group)
+tmp.data <- kiah.data[kiah.data$County == "Oktibbeha",]
+plot(1,1); dev.off()
+setwd("./Graphs")
+pdf("Oktibbeha County MS.pdf")
+plot(
+  1,1,
+  xlim = c(1,63),
+  ylim = c(540, 1563),
+  main = "Oktibbeha County MS Infection Count",
+  xlab = "Date",
+  ylab = "Infected Count",
+  bty = "n",
+  type = "n",
+  col = "blue",
+  xaxt = "n",
+  yaxt = "n",
+  pch = 16
+)
+rect(-5, 450, 70, 1700, col = "grey85")
+axis(1, seq(-5, 75, 10), c(NA, as.character(seq(as.Date("2020-07-05"), as.Date("2020-09-13"), by = 10, units = "days"))))
+axis(2, seq(330, 1730, 200), seq(330, 1730, 200))
+x.seq <- seq(-5, 75, 10)
+for(i in 1:length(x.seq)){abline(v = x.seq[i], col = "white")}
+y.seq <- seq(330, 1730, 200)
+for(i in 1:length(y.seq)){abline(h = y.seq[i], col = "white")}
+x <- 1:63
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-05"), as.Date("2020-09-05"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "black", type = "b", pch = 16)
+x <- 1:21
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-05"), as.Date("2020-07-25"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "blue", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "blue", type = "l")
+x <- 22:42
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-26"), as.Date("2020-08-15"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "green", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "green", type = "l")
+x <- 43:63
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-08-16"), as.Date("2020-09-05"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "red", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "red", type = "l")
+legend(
+  "topleft", 
+  bty = "n", 
+  legend = c(
+    "Prior to Training (11.77 per day)", 
+    "During Training (10.59 per day)", 
+    "Post Training (19.58 per day)"), 
+  pch = c(16,16,16), 
+  col = c("blue","green","red"), 
+  lty = c(1,1,1)
+)
+dev.off()
 
+tmp.data <- kiah.data[kiah.data$County == "Callaway",]
+plot(1,1); dev.off()
+pdf("Callaway County MO.pdf")
+plot(
+  1,1,
+  xlim = c(1,63),
+  ylim = c(56, 408),
+  main = "Callaway County MO Infection Count",
+  xlab = "Date",
+  ylab = "Infected Count",
+  bty = "n",
+  type = "n",
+  col = "blue",
+  xaxt = "n",
+  yaxt = "n",
+  pch = 16
+)
+rect(-5, 40, 70, 1700, col = "grey85")
+axis(1, seq(-5, 75, 10), c(NA, as.character(seq(as.Date("2020-07-05"), as.Date("2020-09-13"), by = 10, units = "days"))))
+axis(2, seq(20, 440, 60), seq(20,440,60))
+x.seq <- seq(-5, 75, 10)
+for(i in 1:length(x.seq)){abline(v = x.seq[i], col = "white")}
+y.seq <- seq(20, 440, 60)
+for(i in 1:length(y.seq)){abline(h = y.seq[i], col = "white")}
+x <- 1:63
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-05"), as.Date("2020-09-05"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "black", type = "b", pch = 16)
+x <- 1:21
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-05"), as.Date("2020-07-25"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "blue", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "blue", type = "l")
+x <- 22:42
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-26"), as.Date("2020-08-15"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "green", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "green", type = "l")
+x <- 43:63
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-08-16"), as.Date("2020-09-05"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "red", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "red", type = "l")
+legend(
+  "topleft", 
+  bty = "n", 
+  legend = c(
+    "Prior to Training (1.74 per day)", 
+    "During Training (4.22 per day)", 
+    "Post Training (10.01 per day)"), 
+  pch = c(16,16,16), 
+  col = c("blue","green","red"), 
+  lty = c(1,1,1)
+)
+dev.off()
 
+tmp.data <- kiah.data[kiah.data$County == "Plymouth",]
+plot(1,1); dev.off()
+pdf("Plymouth County IA.pdf")
+plot(
+  1,1,
+  xlim = c(1,63),
+  ylim = c(321, 838),
+  main = "Plymouth County IA Infection Count",
+  xlab = "Date",
+  ylab = "Infected Count",
+  bty = "n",
+  type = "n",
+  col = "blue",
+  xaxt = "n",
+  yaxt = "n",
+  pch = 16
+)
+rect(-5, 100, 70, 1700, col = "grey85")
+x.seq <- seq(-5, 75, 10)
+for(i in 1:length(x.seq)){abline(v = x.seq[i], col = "white")}
+y.seq <- seq(300, 900, 100)
+for(i in 1:length(y.seq)){abline(h = y.seq[i], col = "white")}
+axis(1, seq(-5, 75, 10), c(NA, as.character(seq(as.Date("2020-07-05"), as.Date("2020-09-13"), by = 10, units = "days"))))
+axis(2, seq(300, 900, 100), seq(300, 900, 100))
+x <- 1:63
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-05"), as.Date("2020-09-05"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "black", type = "b", pch = 16)
+x <- 1:21
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-05"), as.Date("2020-07-25"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "blue", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "blue", type = "l")
+x <- 22:42
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-07-26"), as.Date("2020-08-15"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "green", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "green", type = "l")
+x <- 43:63
+y <- as.numeric(t(tmp.data[,na.omit(match(c(as.character(seq(as.Date("2020-08-16"), as.Date("2020-09-05"), "days"))), names(kiah.data)))]))
+points(y ~ x, col = "red", type = "b", pch = 16)
+fit <- coef(summary(lm(y~x)))
+z <- fit[1,1] + fit[2,1]*x
+points(z~x, col = "red", type = "l")
+legend(
+  "topleft", 
+  bty = "n", 
+  legend = c(
+    "Prior to Training (4.36 per day)", 
+    "During Training (3.92 per day)", 
+    "Post Training (16.26 per day)"), 
+  pch = c(16,16,16), 
+  col = c("blue","green","red"), 
+  lty = c(1,1,1)
+)
+dev.off()
 
 
