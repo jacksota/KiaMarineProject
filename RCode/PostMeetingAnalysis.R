@@ -18,6 +18,122 @@ names(kiah.data)[8:dim(kiah.data)[2]] <- as.character(as.Date(gsub(".", "/", as.
 kiah.data <- kiah.data[,c(1:7,dim(kiah.data)[2]:8)]
 kiah.data[is.na(kiah.data)] <- 0
 
+# Change in Rates are lower counties pre training
+# Training from July 26th to August 8th (7/26-8/8)
+# 3 2 week period comparisons
+
+# Creating comparative regressions ----------------------------------------
+x <- 1:14
+out.data <- data.frame()
+for(i in 1:dim(kiah.data)[1]){
+  pre.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-07-12"), as.Date("2020-07-25"), "days"))), names(kiah.data)))])
+  meet.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-07-26"), as.Date("2020-08-08"), "days"))), names(kiah.data)))])
+  post.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-08-09"), as.Date("2020-08-22"), "days"))), names(kiah.data)))])
+  pre.fit <- coef(summary(lm(pre.y ~ x)))
+  meet.fit <- coef(summary(lm(meet.y ~ x)))
+  post.fit <- coef(summary(lm(post.y ~ x)))
+  rm.test <- (meet.fit[2,1] - pre.fit[2,1])/(meet.fit[2,2]^2 + pre.fit[2,2]^2)
+  rp.test <- (post.fit[2,1] - pre.fit[2,1])/(post.fit[2,2]^2 + pre.fit[2,2]^2)
+  mp.test <- (post.fit[2,1] - meet.fit[2,1])/(post.fit[2,2]^2 + meet.fit[2,2]^2)
+  for.out <- data.frame(
+    kiah.data$State[i],
+    kiah.data$County[i],
+    kiah.data$RtByState[i],
+    kiah.data$MarineCnts[i],
+    round(pre.fit[2,1], 4), round(pre.fit[2,2], 4), round(pre.fit[2,4], 4),
+    round(meet.fit[2,1], 4), round(meet.fit[2,2], 4), round(meet.fit[2,4], 4),
+    round(post.fit[2,1], 4), round(post.fit[2,2], 4), round(post.fit[2,4], 4),
+    round(rm.test, 4), round(2*pt(abs(rm.test), df = (14 + 14 - 4), lower.tail = FALSE), 4),
+    round(rp.test, 4), round(2*pt(abs(rp.test), df = (14 + 14 - 4), lower.tail = FALSE), 4),
+    round(mp.test, 4), round(2*pt(abs(mp.test), df = (14 + 14 - 4), lower.tail = FALSE), 4)
+  )
+  names(for.out) <- c(
+    "State", "County", "StateRt", "MarineCount",
+    "PreSlope", "PreError", "PrePValue",
+    "MeetSlope", "MeetError", "MeetPValue",
+    "PostSlope", "PostError", "PostPValue",
+    "PreMeetTestStat", "PreMeetPValue",
+    "PrePostTestStat", "PrePostPValue",
+    "MeetPostTestStat", "MeetPostPValue"
+  )
+  out.data <- rbind(out.data, for.out)
+  print(paste0(100*round(i/dim(kiah.data)[1], 4), "%"))
+}
+
+pre.data <- out.data[,c(1:7, 14:15)]
+pre.data$Type <- "pre"
+names(pre.data)[5:9] <- c(
+  "Slope",
+  "StdError",
+  "SPValue",
+  "TestStat",
+  "TestPValue"
+)
+meet.data <- out.data[,c(1:4, 8:10, 18:19)]
+meet.data$Type <- "meet"
+names(meet.data) <- names(pre.data)
+post.data <- out.data[,c(1:4, 11:13, 16:17)]
+post.data$Type <- "post"
+names(post.data) <- names(pre.data)
+bh.data <- rbind(pre.data, meet.data, post.data)
+bh.data <- bh.data[order(bh.data$TestPValue, decreasing = TRUE),]
+bh.data$bhpvalue <- c(1:dim(bh.data)[1])/dim(bh.data)[1]*.05
+bh.data$flag <- 0
+bh.data$flag[bh.data$TestPValue < bh.data$bhpvalue] <- 1
+
+pre.atad <- bh.data[bh.data$Type == "pre",]
+names(pre.atad)[c(5:dim(pre.atad)[2])] <- c(
+  "PreSlope",
+  "PreStdError",
+  "PreSPValue",
+  "PreMeetTestValue",
+  "PreMeetPValue",
+  "Type",
+  "PreBHPValue",
+  "PreMeetFlag"
+)
+meet.atad <- bh.data[bh.data$Type == "meet",]
+names(meet.atad)[c(5:dim(meet.atad)[2])] <- c(
+  "MeetSlope",
+  "MeetStdError",
+  "MeetSPValue",
+  "MeetPostTestValue",
+  "MeetPostPValue",
+  "Type",
+  "MeetPostBHPValue",
+  "MeetPostFlag"
+)
+post.atad <- bh.data[bh.data$Type == "post",]
+names(post.atad)[c(5:dim(post.atad)[2])] <- c(
+  "PostSlope",
+  "PostStdError",
+  "PostSPValue",
+  "PrePostTestValue",
+  "PrePostPValue",
+  "Type",
+  "PrePostBHPValue",
+  "PrePostFlag"
+)
+
+merge.1 <- merge(pre.atad[,-10], meet.atad[,-10], by = c("State", "County", "StateRt", "MarineCount"))
+merge.2 <- merge(merge.1, post.atad[,-10], by = c("State", "County", "StateRt", "MarineCount"))
+final.data <- merge.2[,c(1:7, 12:14, 19:21, 8:11, 15:18, 22:25)]
+
+# increase post, meet decrease
+
+
+
+# increase post, meet zero
+
+
+
+# increase post, meet increase
+
+
+
+
+
+
 
 
 
