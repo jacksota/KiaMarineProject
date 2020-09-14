@@ -23,12 +23,12 @@ kiah.data[is.na(kiah.data)] <- 0
 # 3 2 week period comparisons
 
 # Creating comparative regressions ----------------------------------------
-x <- 1:14
+x <- 1:21
 out.data <- data.frame()
 for(i in 1:dim(kiah.data)[1]){
-  pre.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-07-12"), as.Date("2020-07-25"), "days"))), names(kiah.data)))])
-  meet.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-07-26"), as.Date("2020-08-08"), "days"))), names(kiah.data)))])
-  post.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-08-09"), as.Date("2020-08-22"), "days"))), names(kiah.data)))])
+  pre.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-07-05"), as.Date("2020-07-25"), "days"))), names(kiah.data)))])
+  meet.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-07-26"), as.Date("2020-08-15"), "days"))), names(kiah.data)))])
+  post.y <- as.numeric(kiah.data[i,na.omit(match(c(as.character(seq(as.Date("2020-08-16"), as.Date("2020-09-05"), "days"))), names(kiah.data)))])
   pre.fit <- coef(summary(lm(pre.y ~ x)))
   meet.fit <- coef(summary(lm(meet.y ~ x)))
   post.fit <- coef(summary(lm(post.y ~ x)))
@@ -43,9 +43,9 @@ for(i in 1:dim(kiah.data)[1]){
     round(pre.fit[2,1], 4), round(pre.fit[2,2], 4), round(pre.fit[2,4], 4),
     round(meet.fit[2,1], 4), round(meet.fit[2,2], 4), round(meet.fit[2,4], 4),
     round(post.fit[2,1], 4), round(post.fit[2,2], 4), round(post.fit[2,4], 4),
-    round(rm.test, 4), round(2*pt(abs(rm.test), df = (14 + 14 - 4), lower.tail = FALSE), 4),
-    round(rp.test, 4), round(2*pt(abs(rp.test), df = (14 + 14 - 4), lower.tail = FALSE), 4),
-    round(mp.test, 4), round(2*pt(abs(mp.test), df = (14 + 14 - 4), lower.tail = FALSE), 4)
+    round(rm.test, 4), round(2*pt(abs(rm.test), df = (21 + 21 - 4), lower.tail = FALSE), 4),
+    round(rp.test, 4), round(2*pt(abs(rp.test), df = (21 + 21 - 4), lower.tail = FALSE), 4),
+    round(mp.test, 4), round(2*pt(abs(mp.test), df = (21 + 21 - 4), lower.tail = FALSE), 4)
   )
   names(for.out) <- c(
     "State", "County", "StateRt", "MarineCount",
@@ -150,7 +150,7 @@ addDataFrame(tmp.data, sheet = wb.sheet, row.names = FALSE, startRow = 1, startC
 autoSizeColumn(wb.sheet, colIndex = 1:dim(tmp.data)[2])
 
 # Saving workbook
-saveWorkbook(wb, paste0("./Data/Post Meeting Slopes.xlsx"))
+saveWorkbook(wb, paste0("./Data/After Meeting Slopes.xlsx"))
 
 
 
